@@ -3,15 +3,17 @@ async function getData()
 {
   try 
   {
-    const response = await fetch("../js/index.json");
-    if(!response.ok)
+    const response = await fetch("/js/index.json");
+
+    if (!response.ok)
     {
       throw new Error(`HTTP ERROR status: ${response.status}`);
     }
+
     const data = await response.json();
     renderHTML(data);
   }
-  catch(error) 
+  catch (error)
   {
     console.error("ERROR", error);
   }
@@ -56,23 +58,24 @@ function renderHTML(data)
 {
   //Trim data from JSON
   const about = data.about[0]; 
-  const wducation = data.education[1];
-  const work = data.work[2];
-  const experience = data.experience[3];
-  const projects = data.projects[4];
+const education = data.education;
+const work = data.work;
+const experience = data.experience;
+const projects = data.projects;
   const profilePicture = about.profilePicture;
   const myName = `${about.firstName} ${about.lastName}`;
   const projectStatus = about.projects
 
   //Identify url location 
-  const currentUrl = window.location.pathname;
-  const homePage = "/pages/home.html";
-  const indexPage = "/index.html";
-  const landingPage = "/";
-  const aboutPage = "/pages/about.html";
-  const technologiesPage = "/pages/technologies.html"; 
-  const projectsPage = "/pages/projects.html"; 
-  const contactPage = "/pages/contact.html";
+const currentUrl = window.location.pathname;
+
+const homePage = "/pages/home.html";
+const indexPage = "/index.html";
+const landingPage = "/";
+const aboutPage = "/pages/about.html";
+const technologiesPage = "/pages/technologies.html";
+const projectsPage = "/pages/projects.html";
+const contactPage = "/pages/contact.html";
 
   //HTML content
   if (currentUrl === homePage)
@@ -158,46 +161,111 @@ function renderHTML(data)
     document.getElementById("occupation").innerHTML = `${about.currentOccupation}`;
   } 
   else if (currentUrl === contactPage) 
-  {
-    document.getElementById("email").href = `mailto:${about.email}`;
-    document.getElementById("email").innerHTML = about.email;
-    document.getElementById("phone").href = `tel:${about.phoneNumber}`;
-    document.getElementById("phone").innerHTML = about.phoneNumber;
-  } 
+{
+  const emailEl = document.getElementById("email");
+  const phoneEl = document.getElementById("phone");
+
+  if (emailEl) {
+    emailEl.href = `mailto:${about.email}`;
+    emailEl.innerHTML = about.email;
+  }
+
+  if (phoneEl) {
+    phoneEl.href = `tel:${about.phoneNumber}`;
+    phoneEl.innerHTML = about.phoneNumber;
+  }
+}
   else if (currentUrl === projectsPage) 
   {
-    const projectSector = document.querySelector("#projectList");
-    const projectList = data.projects
-      .map(projects =>
-        `
-          <section>
-            <img class ="section_img" src="${projects.logo}" alt="${projects.name}">
-            <div class="article">
-              <h2>${projects.name}</h2>
-              <p>${projects.description}</p>
-              <p class="tech"><span class="tech_stack">Year & Place: </span>${projects.year} at ${projects.place}</p>
-              <div class="link_section">
-                <div class="link">
-                  <img src="../images/link.svg" alt="Live Preview Icon">
-                  <a href="${projects.link}">Live Preview</a>
-                </div>
-                <div class="github_icon">
-                  <img src="../images/github_black.svg" alt="Github">
-                  <a href="${projects.github}">View Code</a>
-                </div>
-              </div>
-            </div>
-          </section>
-        `
-      ).join("");
-    projectSector.innerHTML = projectList;
+    loadGithubProjects();
   };
   
   document.getElementById("footerName").innerHTML = myName;
   
 };
 
-getData();
+async function loadGithubProjects()
+{
+    const loading = document.getElementById("loadingProjects");
+    const projectSector = document.querySelector("#projectList");
+
+    // Säker fallback direkt (så sidan aldrig fastnar)
+    let isLoaded = false;
+
+    // Timeout-skydd (VG-level stabilitet)
+    const timeout = setTimeout(() => {
+        if (!isLoaded) {
+            loading.innerHTML = "Loading taking longer than expected...";
+        }
+    }, 6000);
+
+    try
+    {
+        const response = await fetch(
+            "https://api.github.com/users/BY021/repos"
+        );
+
+        if(!response.ok)
+        {
+            throw new Error(`GitHub API error: ${response.status}`);
+        }
+
+        const repos = await response.json();
+
+        isLoaded = true;
+        clearTimeout(timeout);
+
+        // Om inga repos finns
+        if (!repos || repos.length === 0)
+        {
+            loading.innerHTML = "No projects found.";
+            return;
+        }
+
+        const projectList = repos
+            .filter(repo => !repo.fork)
+            .map(repo =>
+                `
+                <section>
+                    <div class="article">
+                        <h2>${repo.name}</h2>
+
+                        <p>
+                            ${repo.description || "No description available"}
+                        </p>
+
+                        <div class="link_section">
+                            <div class="github_icon">
+                                <img src="../images/github_black.svg" alt="Github">
+                                <a href="${repo.html_url}" target="_blank">
+                                    View Repository
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                `
+            )
+            .join("");
+
+        projectSector.innerHTML = projectList;
+        loading.style.display = "none";
+    }
+    catch(error)
+    {
+        console.error(error);
+
+        clearTimeout(timeout);
+
+        // Viktigt: ALDRIG fastna i loading
+        loading.innerHTML = "Could not load GitHub projects right now.";
+        projectSector.innerHTML = "";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  getData();
+});
 
 
   // // Accessing the 'about' section
@@ -258,7 +326,7 @@ getData();
 
 
 // function renderHTML(data) {
-//       const currentUrl = window.location.pathname;
+//       const currentUrl = window.location.pathname.replace(/\/$/, "");
 //       const home = "/pages/home.html";
 //       const index = "/index.html";
 //       const landing = "/";

@@ -2,7 +2,7 @@
     "about":
     [
         {   
-            "profilePicture": "../images/profile_picture.JPG",
+            "profilePicture": "/images/profile_picture.JPG",
             "firstName": "Baker",
             "lastName": "Yousif",
             "birthYear": 1993,
