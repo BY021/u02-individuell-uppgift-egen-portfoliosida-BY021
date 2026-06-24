@@ -178,6 +178,16 @@ async function loadGithubProjects()
     const loading = document.getElementById("loadingProjects");
     const projectSector = document.querySelector("#projectList");
 
+    // Säker fallback direkt (så sidan aldrig fastnar)
+    let isLoaded = false;
+
+    // Timeout-skydd (VG-level stabilitet)
+    const timeout = setTimeout(() => {
+        if (!isLoaded) {
+            loading.innerHTML = "Loading taking longer than expected...";
+        }
+    }, 6000);
+
     try
     {
         const response = await fetch(
@@ -186,12 +196,20 @@ async function loadGithubProjects()
 
         if(!response.ok)
         {
-            throw new Error("GitHub API Error");
+            throw new Error(`GitHub API error: ${response.status}`);
         }
 
         const repos = await response.json();
 
-        loading.style.display = "none";
+        isLoaded = true;
+        clearTimeout(timeout);
+
+        // Om inga repos finns
+        if (!repos || repos.length === 0)
+        {
+            loading.innerHTML = "No projects found.";
+            return;
+        }
 
         const projectList = repos
             .filter(repo => !repo.fork)
@@ -220,13 +238,17 @@ async function loadGithubProjects()
             .join("");
 
         projectSector.innerHTML = projectList;
+        loading.style.display = "none";
     }
     catch(error)
     {
-        loading.innerHTML =
-            "Could not load GitHub projects.";
-
         console.error(error);
+
+        clearTimeout(timeout);
+
+        // Viktigt: ALDRIG fastna i loading
+        loading.innerHTML = "Could not load GitHub projects right now.";
+        projectSector.innerHTML = "";
     }
 }
 
