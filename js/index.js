@@ -3,13 +3,11 @@ async function getData()
 {
   try 
   {
-    const response = await fetch("/js/index.json");
-    
+    const response = await fetch("./js/index.json");
     if(!response.ok)
     {
       throw new Error(`HTTP ERROR status: ${response.status}`);
     }
-
     const data = await response.json();
     renderHTML(data);
   }
@@ -45,26 +43,29 @@ function toggleMenu()
 
 hamburger.addEventListener("click", toggleMenu);
 
-menuItems.forEach(function(menuItem)
-{ 
-  menuItem.addEventListener("click", toggleMenu);
-});
-
+menuItems.forEach
+( 
+  function(menuItem)
+  { 
+    menuItem.addEventListener("click", toggleMenu);
+  }
+);
 
 //Render data to HTML
 function renderHTML(data)
 {
+  //Trim data from JSON
   const about = data.about[0]; 
-  const work = data.work;
-  const education = data.education;
-  const experience = data.experience;
-
+const education = data.education;
+const work = data.work;
+const experience = data.experience;
+const projects = data.projects;
   const profilePicture = about.profilePicture;
   const myName = `${about.firstName} ${about.lastName}`;
+  const projectStatus = about.projects
 
-  // FIX: safer routing (Netlify compatible)
+  //Identify url location 
   const currentUrl = window.location.pathname;
-
   const homePage = "/pages/home.html";
   const indexPage = "/index.html";
   const landingPage = "/";
@@ -73,141 +74,133 @@ function renderHTML(data)
   const projectsPage = "/pages/projects.html"; 
   const contactPage = "/pages/contact.html";
 
-  const isHome = currentUrl === homePage || currentUrl === indexPage || currentUrl === landingPage;
-  const isAbout = currentUrl === aboutPage;
-  const isProjects = currentUrl === projectsPage;
-  const isContact = currentUrl === contactPage;
-
-  // Footer always safe
-  const footer = document.getElementById("footerName");
-  if (footer) footer.innerHTML = myName;
-
-  // HOME
-  if (isHome)
+  //HTML content
+  if (currentUrl === homePage)
   {  
-    const nameEl = document.getElementById("name");
-    const imgEl = document.getElementById("profile_picture");
-    const occEl = document.getElementById("occupation");
-
-    if (nameEl) nameEl.innerHTML = myName;
-    if (imgEl) imgEl.setAttribute("src", profilePicture);
-    if (occEl) occEl.innerHTML = about.currentOccupation;
+    document.getElementById("name").innerHTML = myName;
+    document.getElementById("profile_picture").setAttribute("src", profilePicture);
+    document.getElementById("occupation").innerHTML = `${about.currentOccupation}`;
   } 
-
-  // ABOUT
-  else if (isAbout) 
+  else if (currentUrl === aboutPage) 
   {
-    const bio = document.getElementById("autobiography");
-    if (bio) bio.innerHTML = about.autobiography;
-
-    const workSector = document.querySelector("#workList");
-    const educationSector = document.querySelector("#educationList");
-    const experienceSector = document.querySelector("#experienceList");
-
-    if (workSector)
-    {
-      workSector.innerHTML = work.map(work =>
+    document.getElementById("autobiography").innerHTML = `${about.autobiography}`;
+    const workSector = document.querySelector("#workList"); //WORKLIST
+    const workList = data.work
+      .map(work =>
         `
         <div class="work">
-            <div>
-                <div class="worktitle"><p>${work.role}</p></div>
-                <p class="work_description">${work.description}</p>
-                <p><img class="company_icon" src="../images/company.svg" alt="Company Icon"> ${work.place}</p>
-                <p><img class="location_icon" src="../images/location.svg" alt="Location Icon"> ${work.location}</p>
-            </div>
-            <div>
-                <p class="worktime">${work.duration}</p>
-                <p><span class="break">${work.period}</span></p>
-            </div>
-        </div>
-        <div class="line"></div>
+                    <div>
+                        <div class="worktitle"><p>${work.role}</p></div>
+                        <p class="work_description">${work.description}</p>
+                        <p><img class="company_icon" src="../images/company.svg" alt="Company Icon"> ${work.place}</p>
+                        <p><img class="location_icon" src="../images/location.svg" alt="Location Icon"> ${work.location}</p>
+                    </div>
+                    <div>
+                        <p class="worktime">${work.duration}</p>
+                        <p><span class="break">${work.period}</span></p>
+                    </div>
+                </div>
+                <div class="line"></div>
         `
       ).join("");
-    }
-
-    if (educationSector)
-    {
-      educationSector.innerHTML = education.map(education =>
+    workSector.innerHTML = workList;
+    const educationSector = document.querySelector("#educationList"); //EDUCATION
+    const educationList = data.education
+      .map(education =>
         `
         <div class="work">
-            <div>
-                <div class="worktitle"><p>${education.title}</p></div>
-                <p class="work_description">${education.description}</p>
-                <p><img class="company_icon" src="../images/company.svg" alt="Company Icon"> ${education.school}</p>
-                <p><img class="location_icon" src="../images/location.svg" alt="Location Icon"> ${education.location}</p>
-            </div>
-            <div class="time">
-                <p class="worktime">${education.duration}</p>
-                <p><span class="break">${education.period}</span></p>
-            </div>
-        </div>
-        <div class="line"></div>
+                    <div>
+                        <div class="worktitle"><p>${education.title}</p></div>
+                        <p class="work_description">${education.description}</p>
+                        <p><img class="company_icon" src="../images/company.svg" alt="Company Icon"> ${education.school}</p>
+                        <p><img class="location_icon" src="../images/location.svg" alt="Location Icon"> ${education.location}</p>
+                    </div>
+                    <div class="time">
+                        <p class="worktime">${education.duration}</p>
+                        <p><span class="break">${education.period}</span></p>
+                    </div>
+                </div>
+                <div class="line"></div>
         `
       ).join("");
-    }
-
-    if (experienceSector)
-    {
-      experienceSector.innerHTML = experience.map(experience =>
+    educationSector.innerHTML = educationList;
+    const experienceSector = document.querySelector("#experienceList"); //EXPERIENCE
+    const experienceList = data.experience
+      .map(experience =>
         `
         <div class="work">
-            <div>
-                <div class="worktitle"><p>${experience.type}</p></div>
-                <p class="work_description">${experience.description}</p>
-                <p><img class="company_icon" src="../images/role.svg" alt="Role Icon"> ${experience.role}</p>
-                <p><img class="location_icon" src="../images/location.svg" alt="Location Icon"> ${experience.place}</p>
-            </div>
-            <div class="time">
-                <p class="worktime">${experience.duration}</p>
-                <p><span class="break">${experience.period}</span></p>
-            </div>
-        </div>
-        <div class="line"></div>
+                    <div>
+                        <div class="worktitle"><p>${experience.type}</p></div>
+                        <p class="work_description">${experience.description}</p>
+                        <p><img class="company_icon" src="../images/role.svg" alt="Role Icon"> ${experience.role}</p>
+                        <p><img class="location_icon" src="../images/location.svg" alt="Location Icon"> ${experience.place}</p>
+                    </div>
+                    <div class="time">
+                        <p class="worktime">${experience.duration}</p>
+                        <p><span class="break">${experience.period}</span></p>
+                    </div>
+                </div>
+                <div class="line"></div>
         `
       ).join("");
-    }
+      experienceSector.innerHTML = experienceList;
+  }
+  else if (currentUrl === indexPage)
+  {
+    document.getElementById("name").innerHTML = myName;
+    document.getElementById("profile_picture").setAttribute("src", profilePicture);
+    document.getElementById("occupation").innerHTML = `${about.currentOccupation}`;
+  }
+  else if (currentUrl === landingPage) 
+  {
+    document.getElementById("name").innerHTML = myName;
+    document.getElementById("profile_picture").setAttribute("src", "../images/profile_picture.JPG");
+    document.getElementById("occupation").innerHTML = `${about.currentOccupation}`;
+  } 
+  else if (currentUrl === contactPage) 
+{
+  const emailEl = document.getElementById("email");
+  const phoneEl = document.getElementById("phone");
+
+  if (emailEl) {
+    emailEl.href = `mailto:${about.email}`;
+    emailEl.innerHTML = about.email;
   }
 
-  // CONTACT
-  else if (isContact) 
-  {
-    const email = document.getElementById("email");
-    const phone = document.getElementById("phone");
-
-    if (email)
-    {
-      email.href = `mailto:${about.email}`;
-      email.innerHTML = about.email;
-    }
-
-    if (phone)
-    {
-      phone.href = `tel:${about.phoneNumber}`;
-      phone.innerHTML = about.phoneNumber;
-    }
-  }
-
-  // PROJECTS
-  else if (isProjects) 
-  {
-    loadGithubProjects();
+  if (phoneEl) {
+    phoneEl.href = `tel:${about.phoneNumber}`;
+    phoneEl.innerHTML = about.phoneNumber;
   }
 }
+  else if (currentUrl === projectsPage) 
+  {
+    loadGithubProjects();
+  };
+  
+  document.getElementById("footerName").innerHTML = myName;
+  
+};
 
-
-//GitHub Projects (FIXED - no infinite loading)
 async function loadGithubProjects()
 {
     const loading = document.getElementById("loadingProjects");
     const projectSector = document.querySelector("#projectList");
 
-    let timeout = setTimeout(() => {
-        if (loading) loading.innerHTML = "Loading taking longer than expected...";
+    // Säker fallback direkt (så sidan aldrig fastnar)
+    let isLoaded = false;
+
+    // Timeout-skydd (VG-level stabilitet)
+    const timeout = setTimeout(() => {
+        if (!isLoaded) {
+            loading.innerHTML = "Loading taking longer than expected...";
+        }
     }, 6000);
 
     try
     {
-        const response = await fetch("https://api.github.com/users/BY021/repos");
+        const response = await fetch(
+            "https://api.github.com/users/BY021/repos"
+        );
 
         if(!response.ok)
         {
@@ -216,15 +209,17 @@ async function loadGithubProjects()
 
         const repos = await response.json();
 
+        isLoaded = true;
         clearTimeout(timeout);
 
+        // Om inga repos finns
         if (!repos || repos.length === 0)
         {
             loading.innerHTML = "No projects found.";
             return;
         }
 
-        projectSector.innerHTML = repos
+        const projectList = repos
             .filter(repo => !repo.fork)
             .map(repo =>
                 `
@@ -250,15 +245,18 @@ async function loadGithubProjects()
             )
             .join("");
 
+        projectSector.innerHTML = projectList;
         loading.style.display = "none";
     }
     catch(error)
     {
         console.error(error);
+
         clearTimeout(timeout);
 
-        if (loading) loading.innerHTML = "Could not load GitHub projects.";
-        if (projectSector) projectSector.innerHTML = "";
+        // Viktigt: ALDRIG fastna i loading
+        loading.innerHTML = "Could not load GitHub projects right now.";
+        projectSector.innerHTML = "";
     }
 }
 
