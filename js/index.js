@@ -3,7 +3,7 @@ async function getData()
 {
   try 
   {
-    const response = await fetch("./js/index.json");
+    const response = await fetch(new URL("../js/index.json", import.meta.url))
     if(!response.ok)
     {
       throw new Error(`HTTP ERROR status: ${response.status}`);
