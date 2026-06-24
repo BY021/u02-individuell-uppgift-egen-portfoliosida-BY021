@@ -4,7 +4,7 @@
 
 u02- Individuell uppgift - Egen portfoliosida (HTML/CSS/JS)
 
-https://bakeryousif.netlify.app/
+https://bakeryousif.vercel.app/
 
 ### Sammanfattning av projekt och reflektion kring styrkor och ev brister.
 
