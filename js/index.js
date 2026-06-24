@@ -166,36 +166,69 @@ function renderHTML(data)
   } 
   else if (currentUrl === projectsPage) 
   {
-    const projectSector = document.querySelector("#projectList");
-    const projectList = data.projects
-      .map(projects =>
-        `
-          <section>
-            <img class ="section_img" src="${projects.logo}" alt="${projects.name}">
-            <div class="article">
-              <h2>${projects.name}</h2>
-              <p>${projects.description}</p>
-              <p class="tech"><span class="tech_stack">Year & Place: </span>${projects.year} at ${projects.place}</p>
-              <div class="link_section">
-                <div class="link">
-                  <img src="../images/link.svg" alt="Live Preview Icon">
-                  <a href="${projects.link}">Live Preview</a>
-                </div>
-                <div class="github_icon">
-                  <img src="../images/github_black.svg" alt="Github">
-                  <a href="${projects.github}">View Code</a>
-                </div>
-              </div>
-            </div>
-          </section>
-        `
-      ).join("");
-    projectSector.innerHTML = projectList;
+    loadGithubProjects();
   };
   
   document.getElementById("footerName").innerHTML = myName;
   
 };
+
+async function loadGithubProjects()
+{
+    const loading = document.getElementById("loadingProjects");
+    const projectSector = document.querySelector("#projectList");
+
+    try
+    {
+        const response = await fetch(
+            "https://api.github.com/users/BY021/repos"
+        );
+
+        if(!response.ok)
+        {
+            throw new Error("GitHub API Error");
+        }
+
+        const repos = await response.json();
+
+        loading.style.display = "none";
+
+        const projectList = repos
+            .filter(repo => !repo.fork)
+            .map(repo =>
+                `
+                <section>
+                    <div class="article">
+                        <h2>${repo.name}</h2>
+
+                        <p>
+                            ${repo.description || "No description available"}
+                        </p>
+
+                        <div class="link_section">
+                            <div class="github_icon">
+                                <img src="../images/github_black.svg" alt="Github">
+                                <a href="${repo.html_url}" target="_blank">
+                                    View Repository
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                `
+            )
+            .join("");
+
+        projectSector.innerHTML = projectList;
+    }
+    catch(error)
+    {
+        loading.innerHTML =
+            "Could not load GitHub projects.";
+
+        console.error(error);
+    }
+}
 
 getData();
 
