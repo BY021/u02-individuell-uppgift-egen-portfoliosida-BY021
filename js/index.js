@@ -65,14 +65,14 @@ const projects = data.projects;
   const projectStatus = about.projects
 
   //Identify url location 
-  const currentUrl = window.location.pathname;
-  const homePage = "/pages/home.html";
-  const indexPage = "/index.html";
-  const landingPage = "/";
-  const aboutPage = "/pages/about.html";
-  const technologiesPage = "/pages/technologies.html"; 
-  const projectsPage = "/pages/projects.html"; 
-  const contactPage = "/pages/contact.html";
+const currentUrl = window.location.pathname.replace(/\/$/, "");
+const homePage = "/pages/home";
+const indexPage = "/index";
+const landingPage = "";
+const aboutPage = "/pages/about";
+const technologiesPage = "/pages/technologies";
+const projectsPage = "/pages/projects";
+const contactPage = "/pages/contact";
 
   //HTML content
   if (currentUrl === homePage)
@@ -321,7 +321,7 @@ getData();
 
 
 // function renderHTML(data) {
-//       const currentUrl = window.location.pathname;
+//       const currentUrl = window.location.pathname.replace(/\/$/, "");
 //       const home = "/pages/home.html";
 //       const index = "/index.html";
 //       const landing = "/";
