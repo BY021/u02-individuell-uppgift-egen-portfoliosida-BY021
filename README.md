@@ -16,6 +16,12 @@ Jag har även hämtat mina GitHub-projekt via GitHub API och visat dem på proje
 
 Under projektet har jag också jobbat mycket med async/await och DOM-manipulation för att kunna bygga upp innehållet dynamiskt.
 
+nder projektet stötte jag på problem med filpaths vid deploy, särskilt när jag använde Netlify. Relative paths fungerade lokalt men inte på servern, vilket gjorde att JSON-filen inte kunde hämtas korrekt. Jag löste detta genom att använda absoluta paths samt flytta projektet till Vercel där routing fungerade mer konsekvent.
+
+Jag hade även problem med att förstå hur window.location.pathname fungerar i olika miljöer, vilket gjorde att min sidlogik först inte matchade rätt HTML-sidor.
+
+Dessa problem gjorde att jag fick en bättre förståelse för hur deployment påverkar frontend-applikationer.
+
 Jag har haft lite problem med struktur och tid eftersom jag jobbat med flera uppgifter samtidigt, men jag har fått ihop en fungerande lösning där sidan uppdateras via JSON och API.
 
 ### 1. Vad kan man utveckla med hjälp av JavaScript inom frontend?
